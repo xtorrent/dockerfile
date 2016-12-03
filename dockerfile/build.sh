@@ -18,6 +18,8 @@ function download
     local pkg=${2:-$(basename "$url")}
     ! grep $pkg packages.md5sum | md5sum --check || return 0
     curl -fsSL "$url" > $pkg && grep $pkg packages.md5sum | md5sum --check
+    echo "Extracting $pkg into $SELF_DIR"
+    tar -C $SELF_DIR -xzf $pkg
 }
 
 function prepare
@@ -30,22 +32,22 @@ function prepare
     download $PROTOBUF_URL protobuf.tar.gz
 }
 
+function get_build_dir
+{
+    local pkg=${1?}
+    echo $(dirname $pkg)/$(tar tzf $pkg | head -1)
+}
+
 function build
 {
     local pkg=${1?}  # /tmp/abc-1.0.tar.gz
     shift 1  # other args are passed to configure
-
+    
+    local build_dir=$(get_build_dir)
     local -a configure_opts=()
-    local build_dir
-
     if (( $# >= 1 )); then
         configure_opts+=("$@")
     fi
-
-    echo "Extracting $pkg into $SELF_DIR"
-    tar -C $SELF_DIR -xzf $pkg
-
-    build_dir=$(dirname $pkg)/$(tar tzf $pkg | head -1)
     echo "Building in $build_dir with configure options: ${configure_opts[@]}"
 
     # Build in subdir
@@ -68,24 +70,18 @@ function build_with_cmake
     local pkg=${1?}  # /tmp/abc-1.0.tar.gz
     shift 1  # other args are passed to configure
 
+    local build_dir=$(get_build_dir)
     local -a cmake_opts=()
-    local build_dir
-
     if (( $# >= 1 )); then
         cmake_opts+=("$@")
     fi
-
-    echo "Extracting $pkg into $SELF_DIR"
-    tar -C $SELF_DIR -xzf $pkg
-
-    build_dir=$(dirname $pkg)/$(tar tzf $pkg | head -1)
     echo "Building in $build_dir with cmake options: ${cmake_opts[@]}"
 
     # Build in subdir
     (
         set -o errexit
         mkdir -p $build_dir/build
-        cd $build_dir/build || exit 1
+        cd $build_dir/build
         cmake .. "${cmake_opts[@]}"
         make
         make install
@@ -97,13 +93,7 @@ function build_with_make
     local pkg=${1?}  # /tmp/abc-1.0.tar.gz
     shift 1  # other args are passed to configure
 
-    local -a cmake_opts=()
-    local build_dir
-
-    echo "Extracting $pkg into $SELF_DIR"
-    tar -C $SELF_DIR -xzf $pkg
-
-    build_dir=$(dirname $pkg)/$(tar tzf $pkg | head -1)
+    local build_dir=$(get_build_dir)
     echo "Building in $build_dir with make"
 
     # Build in subdir
@@ -118,13 +108,12 @@ function build_with_make
 function build_all
 {
     local TARGET_DIR=/usr/local
-    # build libevent.tar.gz --prefix $TARGET_DIR/libevent
-    # build_with_cmake gflags.tar.gz -DCMAKE_INSTALL_PREFIX=$TARGET_DIR/gflags
-    # build glog.tar.gz --prefix $TARGET_DIR/glog
+    build libevent.tar.gz --prefix $TARGET_DIR/libevent
+    build_with_cmake gflags.tar.gz -DCMAKE_INSTALL_PREFIX=$TARGET_DIR/gflags
+    build glog.tar.gz --prefix $TARGET_DIR/glog
     build thrift.tar.gz --prefix $TARGET_DIR/thrift CPPFLAGS="-I$TARGET_DIR/libevent/include" LDFLAGS="-L$TARGET_DIR/libevent/lib"
-    # build_with_cmake thrift.tar.gz -DCMAKE_INSTALL_PREFIX=$TARGET_DIR/thrift
-    # (PREFIX=$TARGET_DIR/hiredis build_with_make hiredis.tar.gz)
-    # build protobuf.tar.gz --prefix $TARGET_DIR/protobuf
+    (PREFIX=$TARGET_DIR/hiredis build_with_make hiredis.tar.gz)
+    build protobuf.tar.gz --prefix $TARGET_DIR/protobuf
 }
 
 function main
