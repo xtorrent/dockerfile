@@ -5,4 +5,5 @@ MAINTAINER Liu Ming <csuliuming@sina.com>
 
 COPY build.sh packages.md5sum /tmp/gko3/
 
-RUN cd /tmp/gko3 && ./build.sh && rm -rf /tmp/gko3
+RUN cd /tmp/gko3 && ./build.sh
+RUN rm -rf /tmp/gko3

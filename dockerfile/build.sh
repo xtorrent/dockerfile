@@ -43,7 +43,7 @@ function build
     local pkg=${1?}  # /tmp/abc-1.0.tar.gz
     shift 1  # other args are passed to configure
     
-    local build_dir=$(get_build_dir)
+    local build_dir=$(get_build_dir $pkg)
     local -a configure_opts=()
     if (( $# >= 1 )); then
         configure_opts+=("$@")
@@ -70,7 +70,7 @@ function build_with_cmake
     local pkg=${1?}  # /tmp/abc-1.0.tar.gz
     shift 1  # other args are passed to configure
 
-    local build_dir=$(get_build_dir)
+    local build_dir=$(get_build_dir $pkg)
     local -a cmake_opts=()
     if (( $# >= 1 )); then
         cmake_opts+=("$@")
@@ -93,7 +93,7 @@ function build_with_make
     local pkg=${1?}  # /tmp/abc-1.0.tar.gz
     shift 1  # other args are passed to configure
 
-    local build_dir=$(get_build_dir)
+    local build_dir=$(get_build_dir $pkg)
     echo "Building in $build_dir with make"
 
     # Build in subdir
