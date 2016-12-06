@@ -147,7 +147,7 @@ function build_all
 
 function main
 {
-    yum install -y cmake make gcc-c++ libtool byacc flex unzip
+    yum install -y cmake make gcc-c++ libtool byacc flex unzip patch
     yum install -y openssl-static openssl-devel
     prepare
     build_all
