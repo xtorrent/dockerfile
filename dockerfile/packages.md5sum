@@ -1,6 +1,9 @@
+6f4571e7c5a66ccc3323da6c24be8f05  boost.tar.gz
 ac432de923f9de1e9780b5254884599f  gflags.tar.gz
 df92e05c9d02504fb96674bc776a41cb  glog.tar.gz
 43dca1445ec6d3b702821dba36000279  hiredis.tar.gz
 c4c56f986aa985677ca1db89630a2e11  libevent.tar.gz
 bd5e3eed635a8d32e2b99658633815ef  protobuf.tar.gz
 193ecb66ff1cc4282e7625aa263622bf  thrift.tar.gz
+2dec0280159271390bd43a8e1f077fea  snappy.tar.gz
+07931c0a19057a7a521cbea96d7bc793  log4cpp.tar.gz
