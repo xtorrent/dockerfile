@@ -14,6 +14,7 @@ HIREDIS_URL=https://github.com/redis/hiredis/archive/v0.13.3.tar.gz
 PROTOBUF_URL=https://github.com/google/protobuf/releases/download/v3.1.0/protobuf-cpp-3.1.0.tar.gz
 SNAPPY_URL=https://github.com/google/snappy/archive/1.1.3.tar.gz
 LOG4CPP_URL=https://github.com/orocos-toolchain/log4cpp/archive/v2.7.0-rc1.tar.gz
+MAVEN_URL=https://archive.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz
 
 function download
 {
@@ -21,6 +22,14 @@ function download
     local pkg=${2:-$(basename "$url")}
     ! grep $pkg packages.md5sum | md5sum --check || return 0
     curl -fsSL "$url" > $pkg && grep $pkg packages.md5sum | md5sum --check
+}
+
+function tar_file
+{
+    local src=${1}
+    local dst=${2}
+
+    tar -xvzf $src -C $dst
 }
 
 function prepare
@@ -34,6 +43,7 @@ function prepare
     download $PROTOBUF_URL protobuf.tar.gz
     download $SNAPPY_URL snappy.tar.gz
     download $LOG4CPP_URL log4cpp.tar.gz
+    download $MAVEN_URL apache-maven-bin.tar.gz
 }
 
 function get_build_dir
@@ -143,12 +153,15 @@ function build_all
     build snappy.tar.gz --prefix $TARGET_DIR/snappy
     build log4cpp.tar.gz --prefix $TARGET_DIR/log4cpp
     (PREFIX=$TARGET_DIR/hiredis build_with_make hiredis.tar.gz)
+
+    tar_file apache-maven-bin.tar.gz $TARGET_DIR
 }
 
 function main
 {
     yum install -y cmake make gcc-c++ libtool byacc flex unzip patch
     yum install -y openssl-static openssl-devel
+    yum install -y java-1.6.0-openjdk-devel
     prepare
     build_all
 }

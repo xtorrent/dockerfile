@@ -1,4 +1,4 @@
-# centos7 + gko3 tracker dependencies
+# centos7 + gko3 tracker torrent-provider dependencies
 #
 FROM centos:centos7
 MAINTAINER Liu Ming <csuliuming@sina.com>
