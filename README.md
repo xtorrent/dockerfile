@@ -1,2 +1,2 @@
 # dockerfile
-compile for gko3 env
+compile for xtorrent env
