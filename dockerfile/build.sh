@@ -16,6 +16,9 @@ SNAPPY_URL=https://github.com/google/snappy/archive/1.1.3.tar.gz
 LOG4CPP_URL=https://github.com/orocos-toolchain/log4cpp/archive/v2.7.0-rc1.tar.gz
 MAVEN_URL=https://archive.apache.org/dist/maven/maven-3/3.2.5/binaries/apache-maven-3.2.5-bin.tar.gz
 
+HADOOP_URL=http://ftp.cuhk.edu.hk/pub/packages/apache.org/hadoop/common/hadoop-2.7.7/hadoop-2.7.7.tar.gz
+JRE_URL="https://javadl.oracle.com/webapps/download/AutoDL?BundleId=235717_2787e4a523244c269598db4e85c51e0c"
+
 function download
 {
     local url=${1:?}
@@ -34,6 +37,8 @@ function tar_file
 
 function prepare
 {
+    download $HADOOP_URL hadoop.tar.gz
+    download $JRE_URL jre.tar.gz
     download $BOOST_URL boost.tar.gz
     download $LIBEVENT_URL libevent.tar.gz
     download $GFLAGS_URL gflags.tar.gz
@@ -154,12 +159,14 @@ function build_all
     build log4cpp.tar.gz --prefix $TARGET_DIR/log4cpp
     (PREFIX=$TARGET_DIR/hiredis build_with_make hiredis.tar.gz)
 
-    tar_file apache-maven-bin.tar.gz $TARGET_DIR
+    tar_file apache-maven-bin.tar.gz $TARGET_DIR && ln -s $TARGET_DIR/apache-maven-* $TARGET_DIR/maven
+    tar_file hadoop.tar.gz $TARGET_DIR && ln -s $TARGET_DIR/hadoop-* $TARGET_DIR/hadoop
+    tar_file jre.tar.gz $TARGET_DIR && ln -s $TARGET_DIR/jre1* $TARGET_DIR/jre
 }
 
 function main
 {
-    yum install -y cmake make gcc-c++ libtool byacc flex unzip patch
+    yum install -y cmake make gcc-c++ libtool byacc flex unzip patch which
     yum install -y openssl-static openssl-devel
     yum install -y java-1.6.0-openjdk-devel
     prepare

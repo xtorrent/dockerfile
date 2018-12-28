@@ -1,6 +1,6 @@
 .PHONY: build debug all
 
-BUILD_IMAGE ?= csuliuming/gko3-compile-env:v0.9
+BUILD_IMAGE ?= csuliuming/gko3-compile-env:v1.1
 
 all: build upload
 	
